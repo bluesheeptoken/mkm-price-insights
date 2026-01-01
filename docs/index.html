@@ -32,11 +32,15 @@
     a.button:hover {
       background: #1664c1;
     }
-    code {
+    pre {
       background: #f4f4f4;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.9rem;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: monospace;
+      white-space: pre;
     }
     .section {
       margin-top: 2rem;
@@ -52,24 +56,53 @@
   </p>
 
   <div class="section">
-    <h2>Install on Tampermonkey</h2>
+    <h2>Install on Tampermonkey (Easy Copy-Paste)</h2>
     <p>
-      Click the button below to install the userscript. Once installed, open any MKM page and the histogram & trend UI will appear automatically.
+      Open Tampermonkey, create a new script, and copy-paste the code below.  
+      It dynamically loads the latest version of the userscript from GitHub Pages.
     </p>
-    <a class="button" href="mkm-trends.user.js">Install Userscript</a>
+    <pre><code>
+// ==UserScript==
+// @name         MKM Trends
+// @namespace    https://github.com/bluesheeptoken/mkm-price-insights
+// @version      0.1.0
+// @description  Injects price histograms and trend insights on MKM
+// @match        https://www.cardmarket.com/*
+// @grant        none
+// @run-at       document-idle
+// @updateURL    https://bluesheeptoken.github.io/mkm-price-insights/mkm-trends.user.js
+// @downloadURL  https://bluesheeptoken.github.io/mkm-price-insights/mkm-trends.user.js
+// ==/UserScript==
+
+(function() {
+    const s = document.createElement('script');
+    s.src = 'https://bluesheeptoken.github.io/mkm-price-insights/mkm-trends.user.js';
+    document.body.appendChild(s);
+})();
+    </code></pre>
+    <p>
+      This way, the script will automatically load the latest version from GitHub Pages, and Tampermonkey can track updates via <code>@updateURL</code>.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Optional Mobile Bookmarklet</h2>
+    <p>
+      For mobile users who don’t use Tampermonkey, copy this code and save it as a bookmark:
+    </p>
+    <pre><code>
+javascript:(function(){
+  var s=document.createElement('script');
+  s.src='https://bluesheeptoken.github.io/mkm-price-insights/mkm-trends.user.js';
+  document.body.appendChild(s);
+})();
+    </code></pre>
   </div>
 
   <div class="section">
     <h2>Feedback</h2>
     <p>
-      After using the script, a feedback panel will appear. You can submit a quick <strong>Yes / No</strong> response, or click <em>"Leave a comment"</em> to give more detailed feedback.
-    </p>
-  </div>
-
-  <div class="section">
-    <h2>Updates</h2>
-    <p>
-      The userscript will automatically update if you use the Tampermonkey install link. For bugs, questions, or suggestions, open an issue in this GitHub repository.
+      After using the script, a feedback panel will appear. You can submit quick <strong>Yes / No</strong> answers or click <em>"Leave a comment"</em> to provide more detailed feedback.
     </p>
   </div>
 </body>
