@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MKM Price Tracker - Test Harness</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+  <style>
+    .scenario-btn {
+      margin: 4px;
+    }
+
+    .scenario-btn.active {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    }
+
+    .scenario-group {
+      margin-bottom: 16px;
+    }
+
+    .scenario-group h6 {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .prices-display {
+      font-family: monospace;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 8px;
+      max-height: 60px;
+      overflow-y: auto;
+    }
+
+    #controls {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 100;
+      padding: 16px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+  </style>
+  <script>
+    window.__MKM_DEV__ = true;
+
+    // Test scenarios
+    window.__TEST_SCENARIOS__ = {
+      // === UNDERCUT (small gap <25%) ===
+      "undercut-single": {
+        name: "Undercut (single, 20% gap)",
+        description: "€0.80 undercuts wall at €1.00 — prices might drop",
+        prices: [0.8, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+      "undercut-few": {
+        name: "Undercut (2 sellers, 15% gap)",
+        description: "€0.85 undercuts wall at €1.00",
+        prices: [0.85, 0.87, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+
+      // === WALL COMPRESSION ===
+      "wall-compression": {
+        name: "Wall compression",
+        description: "3 aggressive sellers, strong wall above",
+        prices: [2.5, 2.6, 2.7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5]
+      },
+      "competitive-middle": {
+        name: "Competitive middle",
+        description: "Many sellers between floor and wall",
+        prices: [1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+      },
+
+      // === STABLE MARKETS ===
+      "price-locked": {
+        name: "Price locked",
+        description: "Large wall at floor",
+        prices: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3]
+      },
+      "defended-floor": {
+        name: "Defended floor",
+        description: "Strong floor (many sellers)",
+        prices: [1, 1, 1, 1, 1, 1.1, 1.2, 1.3, 1.5, 2, 3, 4]
+      },
+      "isolated-tier": {
+        name: "Isolated tier",
+        description: "Clear gap to higher tiers",
+        prices: [1, 1.1, 1.2, 1.3, 5, 5.5, 6, 7, 8]
+      },
+
+      // === LOW SUPPLY / PRICE RISING (gap >= 25%) ===
+      "price-rising-1": {
+        name: "Price might rise (1 listing)",
+        description: "Single cheap listing at €1, wall at €5 (80% gap)",
+        prices: [1, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+      },
+      "price-rising-2": {
+        name: "Price might rise (2 listings)",
+        description: "2 cheap listings at €1, wall at €4 (75% gap)",
+        prices: [1, 1.01, 4, 4, 4, 4, 4, 4, 4, 4]
+      },
+      "price-rising-scarce": {
+        name: "Scarce item",
+        description: "2 listings at €5, wall at €20 (75% gap)",
+        prices: [5, 5.05, 20, 20, 20, 20, 20, 20, 20, 20]
+      },
+
+      // === EDGE CASES ===
+      "no-wall": {
+        name: "No wall",
+        description: "Spread out prices, no concentration",
+        prices: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+      },
+      "uniform": {
+        name: "Uniform prices",
+        description: "All same price",
+        prices: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+      "few-items": {
+        name: "Few items",
+        description: "Only 3 listings",
+        prices: [1, 1.5, 2]
+      },
+
+      // === REAL-WORLD EXAMPLES ===
+      "mtg-staple": {
+        name: "MTG Staple",
+        description: "Typical high-demand card",
+        prices: [28, 28.9, 29.5, 29.9, 29.99, 29.99, 29.99, 30, 30, 30, 31.99, 32, 34, 34.9, 35, 35, 35, 35, 40, 40, 40, 40, 40, 40, 40, 40]
+      },
+      "budget-card": {
+        name: "Budget card",
+        description: "Cheap card with wall",
+        prices: [0.15, 0.15, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.3, 0.35, 0.4, 0.5]
+      }
+    };
+
+    window.__MKM_TEST_PRICES__ = window.__TEST_SCENARIOS__["undercut-single"].prices;
+  </script>
+</head>
+
+<body class="p-4">
+
+  <div id="controls">
+    <h4 class="mb-3">🧪 MKM Price Tracker - Test Harness</h4>
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="scenario-group">
+          <h6>📉 Price Dropping</h6>
+          <button class="btn btn-sm btn-outline-danger scenario-btn" data-scenario="undercut-single">Undercut
+            (single)</button>
+          <button class="btn btn-sm btn-outline-danger scenario-btn" data-scenario="undercut-few">Undercut (2)</button>
+          <button class="btn btn-sm btn-outline-danger scenario-btn" data-scenario="wall-compression">Wall
+            compression</button>
+          <button class="btn btn-sm btn-outline-danger scenario-btn"
+            data-scenario="competitive-middle">Competitive</button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="scenario-group">
+          <h6>✅ Stable</h6>
+          <button class="btn btn-sm btn-outline-success scenario-btn" data-scenario="price-locked">Price locked</button>
+          <button class="btn btn-sm btn-outline-success scenario-btn" data-scenario="defended-floor">Defended
+            floor</button>
+          <button class="btn btn-sm btn-outline-success scenario-btn" data-scenario="isolated-tier">Isolated
+            tier</button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="scenario-group">
+          <h6>📈 Price Rising</h6>
+          <button class="btn btn-sm btn-outline-primary scenario-btn" data-scenario="price-rising-1">1 listing</button>
+          <button class="btn btn-sm btn-outline-primary scenario-btn" data-scenario="price-rising-2">2 listings</button>
+          <button class="btn btn-sm btn-outline-primary scenario-btn"
+            data-scenario="price-rising-scarce">Scarce</button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="scenario-group">
+          <h6>🔧 Edge Cases</h6>
+          <button class="btn btn-sm btn-outline-secondary scenario-btn" data-scenario="no-wall">No wall</button>
+          <button class="btn btn-sm btn-outline-secondary scenario-btn" data-scenario="uniform">Uniform</button>
+          <button class="btn btn-sm btn-outline-secondary scenario-btn" data-scenario="few-items">Few items</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-md-6">
+        <div class="scenario-group">
+          <h6>🎴 Real Examples</h6>
+          <button class="btn btn-sm btn-outline-dark scenario-btn" data-scenario="mtg-staple">MTG Staple (€28+)</button>
+          <button class="btn btn-sm btn-outline-dark scenario-btn" data-scenario="budget-card">Budget card
+            (€0.15)</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div id="current-scenario" class="p-2 bg-light rounded">
+          <strong id="scenario-name">Aggressive undercut (single)</strong>
+          <div class="text-muted small" id="scenario-desc">Single seller at €0.80, wall at €1.00</div>
+          <div class="prices-display" id="prices-display">[0.8, 1, 1, 1, 1, 1, 1, 1, 1, 1]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabs" class="mt-4">
+    <ul class="nav nav-tabs"></ul>
+    <div class="tab-content"></div>
+  </div>
+
+  <script>
+    // Load scenario
+    function loadScenario(key) {
+      const scenario = window.__TEST_SCENARIOS__[key];
+      if (!scenario) return;
+
+      window.__MKM_TEST_PRICES__ = scenario.prices;
+
+      // Update UI
+      document.getElementById('scenario-name').textContent = scenario.name;
+      document.getElementById('scenario-desc').textContent = scenario.description;
+      document.getElementById('prices-display').textContent = JSON.stringify(scenario.prices);
+
+      // Update button states
+      document.querySelectorAll('.scenario-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scenario === key);
+      });
+
+      // Re-render (will be available after content.js loads)
+      if (window.__MKM_RENDER__) {
+        window.__MKM_RENDER__(scenario.prices);
+      }
+    }
+
+    // Setup click handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.scenario-btn').forEach(btn => {
+        btn.addEventListener('click', () => loadScenario(btn.dataset.scenario));
+      });
+
+      // Mark first as active
+      document.querySelector('[data-scenario="undercut-single"]')?.classList.add('active');
+    });
+  </script>
+
+  <script src="/dist/content.js"></script>
+</body>
+
+</html>

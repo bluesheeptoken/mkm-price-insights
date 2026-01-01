@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "MKM Price Tracker",
+  "version": "0.1.2",
+  "description": "Track MKM prices using histograms",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "mkm-price-tracker@firefox",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.cardmarket.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.cardmarket.com/*/Products/Singles/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}
