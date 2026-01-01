@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:userscript": "esbuild src/content.ts --bundle --format=iife --target=es2019 --outfile=pages/mkm-trends.user.js",
+    "build:userscript": "esbuild src/content.ts --bundle --format=iife --target=es2019 --outfile=docs/mkm-trends.user.js",
     "build:extension": "esbuild src/content.ts --bundle --outfile=dist/content.js && cp src/manifest.json dist",
     "watch": "esbuild src/content.ts --bundle --outfile=dist/content.js --watch=forever",
     "typecheck": "tsc --noEmit",
